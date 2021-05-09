@@ -7,8 +7,8 @@
 #include <autoexecconfig>
 
 public Plugin myinfo = {
-	name = "KZTV", 
-	author = "zer0.k", 
+	name = "KZTV",
+	author = "zer0.k",
 	description = "test",
 	version = "1.0.0"
 }
@@ -40,7 +40,7 @@ public void OnPluginStart()
 		{
         	OnClientCookiesCached(client);
 		}
-	}     
+	}
 
 	RegConsoleCmd("sm_kztv", Command_Menu_KZTV);
 	RegConsoleCmd("sm_kztv_postrun", Command_Menu_KZTVPostRun)
@@ -83,21 +83,21 @@ public void OnClientCookiesCached(int client)
 }
 
 public void GOKZ_LR_OnTimeProcessed(
-	int client, 
-	int steamID, 
-	int mapID, 
-	int course, 
-	int mode, 
-	int style, 
-	float runTime, 
-	int teleportsUsed, 
-	bool firstTime, 
-	float pbDiff, 
-	int rank, 
-	int maxRank, 
-	bool firstTimePro, 
-	float pbDiffPro, 
-	int rankPro, 
+	int client,
+	int steamID,
+	int mapID,
+	int course,
+	int mode,
+	int style,
+	float runTime,
+	int teleportsUsed,
+	bool firstTime,
+	float pbDiff,
+	int rank,
+	int maxRank,
+	bool firstTimePro,
+	float pbDiffPro,
+	int rankPro,
 	int maxRankPro)
 {
 	// bool newSR = (firstTime || pbDiff < 0) && rank == 1;
@@ -208,7 +208,7 @@ public void Menu_KZTV(int client)
 		menu.AddItem("Save & Stop Demo", "Save & Stop Demo");
 		menu.AddItem("Reset Demo", "Reset Demo");
 		menu.AddItem("Save & Reset Demo", "Save & Reset Demo");
-	}	
+	}
 	menu.ExitButton = true;
 	menu.Display(client, MENU_TIME_FOREVER);
 }
@@ -326,7 +326,7 @@ public Action Command_KZTV_TogglePostRunMenu(int client, int args)
 	if (AreClientCookiesCached(client))
 	{
 		char buffer[2];
-		IntToString(gB_EnablePostRunMenu[client], buffer, sizeof(buffer));	
+		IntToString(gB_EnablePostRunMenu[client], buffer, sizeof(buffer));
 		SetClientCookie(client, gH_KZTVCookie, buffer);
 	}
 	return Plugin_Handled;
@@ -351,17 +351,17 @@ public Action Command_Menu_KZTVPostRun(int client, int args)
 
 static Action Timer_StartWarmup(Handle timer)
 {
-	ServerCommand("mp_warmup_start");    
+	ServerCommand("mp_warmup_start");
 }
 
 static Action Timer_StartRecording(Handle timer)
 {
-	RecordDemo();	
+	RecordDemo();
 }
 
 static Action Timer_StopWarmup(Handle timer)
 {
-	ServerCommand("mp_warmup_end"); 
+	ServerCommand("mp_warmup_end");
 	return Plugin_Handled;
 }
 
@@ -378,19 +378,19 @@ void RecordDemo()
 	char map[PLATFORM_MAX_PATH];
 	char demoPath[PLATFORM_MAX_PATH];
 
-	IntToString(GetTime(), timestamp, sizeof(timestamp));	
+	IntToString(GetTime(), timestamp, sizeof(timestamp));
 	GetCurrentMap(map, sizeof(map));
 	GetMapDisplayName(map, demoName, sizeof(demoName));
 
 	StrCat(demoName, sizeof(demoName), "_");
 	StrCat(demoName, sizeof(demoName), timestamp);
 	Format(demoPath, sizeof(demoPath), "demos/%s", demoName);
-	SourceTV_StartRecording(demoPath);	
+	SourceTV_StartRecording(demoPath);
 }
 
 void StartDemo()
 {
-	if (SourceTV_IsActive() && !SourceTV_IsRecording()) 
+	if (SourceTV_IsActive() && !SourceTV_IsRecording())
 	{
 		PrintToChatAll("[KZTV] Recording Demo...");
 		// Making sure that the replay does not get corrupted and the server does not crash
@@ -415,7 +415,7 @@ void StopDemo(bool save)
 	{
 		PrintToChatAll("[KZTV] Demo saved as %s.", fileName);
 		SourceTV_StopRecording();
-	}	
+	}
 }
 
 void ResetDemo(bool save)
@@ -467,9 +467,9 @@ void CreateConVars()
 {
 	AutoExecConfig_SetFile("kztv-cvars", "sourcemod/kztv");
 	AutoExecConfig_SetCreateFile(true);
-	
+
 	gCV_KZTVAutoRecord = AutoExecConfig_CreateConVar("kztv_autorecord", "1", "Enable KZTV autorecording.", _, true, 0.0, true, 1.0);
-	
+
 	AutoExecConfig_ExecuteFile();
 	AutoExecConfig_CleanFile();
 }
