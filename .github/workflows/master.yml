@@ -78,8 +78,8 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: workflow-build${{ github.run_number }}
-          release_name: Build ${{ steps.commit_info.outputs.sha_short  }}
+          tag_name: workflow-build${{ github.run_number }}
+          name: Build ${{ steps.commit_info.outputs.sha_short  }}
           files: |
             kztv-linux.zip
             kztv-windows.zip
