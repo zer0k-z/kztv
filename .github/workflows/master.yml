@@ -71,10 +71,15 @@ jobs:
         run: |
           zip -9rq kztv-linux.zip build-linux/*
           zip -9rq kztv-windows.zip build-windows/*
-
+      
+      - name: Set Commit Hash
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          name: workflow-build${{ github.run_number }}
+          release_name: Build ${{ steps.commit_info.outputs.sha_short  }}
           files: |
             kztv-linux.zip
             kztv-windows.zip
