@@ -43,11 +43,6 @@ public void OnPluginStart()
 	}
 
 	RegConsoleCmd("sm_kztv", Command_Menu_KZTV);
-	RegConsoleCmd("sm_kztv_postrun", Command_Menu_KZTVPostRun)
-	RegConsoleCmd("sm_kztv_startdemo", Command_KZTV_StartDemo);
-	RegConsoleCmd("sm_kztv_stopdemo", Command_KZTV_StopDemo);
-	RegConsoleCmd("sm_kztv_resetdemo", Command_KZTV_ResetDemo);
-	RegConsoleCmd("sm_kztv_savedemo", Command_KZTV_SaveDemo);
 	RegConsoleCmd("sm_kztv_togglepostrunmenu", Command_KZTV_TogglePostRunMenu);
 	CheckDemoDirectory();
 	ExecGOTVConfig();
@@ -280,30 +275,6 @@ public int Menu_KZTV_PostRunHandler(Menu menu, MenuAction action, int param1, in
 // Commands
 // ===================
 
-public Action Command_KZTV_StartDemo(int client, int args)
-{
-	StartDemo();
-	return Plugin_Handled;
-}
-
-public Action Command_KZTV_StopDemo(int client, int args)
-{
-	StopDemo(false);
-	return Plugin_Handled;
-}
-
-public Action Command_KZTV_ResetDemo(int client, int args)
-{
-	ResetDemo(false);
-	return Plugin_Handled;
-}
-
-public Action Command_KZTV_SaveDemo(int client, int args)
-{
-	StopDemo(true);
-	return Plugin_Handled;
-}
-
 public Action Command_KZTV_TogglePostRunMenu(int client, int args)
 {
 	gB_EnablePostRunMenu[client] = !gB_EnablePostRunMenu[client];
@@ -327,12 +298,6 @@ public Action Command_KZTV_TogglePostRunMenu(int client, int args)
 public Action Command_Menu_KZTV(int client, int args)
 {
 	Menu_KZTV(client);
-	return Plugin_Handled;
-}
-
-public Action Command_Menu_KZTVPostRun(int client, int args)
-{
-	Menu_KZTV_PostRun(client);
 	return Plugin_Handled;
 }
 
