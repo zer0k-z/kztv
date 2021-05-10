@@ -72,6 +72,7 @@ jobs:
           zip -9rq kztv-linux.zip build-linux/*
           zip -9rq kztv-windows.zip build-windows/*
 
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
