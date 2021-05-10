@@ -62,7 +62,6 @@ public void OnClientPutInServer(int client)
 {
 	if (GetPlayerCount() == 1 && !IsFakeClient(client) && gCV_KZTVAutoRecord.IntValue)
 	{
-		LogMessage("Restarting!");
 		StartDemo();
 	}
 }
@@ -100,13 +99,6 @@ public void GOKZ_LR_OnTimeProcessed(
 	int rankPro,
 	int maxRankPro)
 {
-	// bool newSR = (firstTime || pbDiff < 0) && rank == 1;
-	// bool newSRPro = (firstTimePro || pbDiffPro < 0) && rankPro == 1;
-	/*if ((newSR || newSRPro) && SourceTV_IsRecording())
-	{
-		PrintToChatAll("Saving demo in 10 seconds!");
-		CreateTimer(10.0, SaveDemo);
-	}*/
 	if (gB_EnablePostRunMenu[client])
 	{
 		Menu_KZTV_PostRun(client);
