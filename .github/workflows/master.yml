@@ -72,36 +72,10 @@ jobs:
           zip -9rq kztv-linux.zip build-linux/*
           zip -9rq kztv-windows.zip build-windows/*
 
-      - name: Set Commit Hash
-        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            kztv-linux.zip
+            kztv-windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: workflow-build${{ github.run_number }}
-          release_name: Build ${{ steps.commit_info.outputs.sha_short  }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Linux Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./kztv-linux.zip
-          asset_name: kztv-linux.zip
-          asset_content_type: application/zip
-
-      - name: Upload Windows Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./kztv-windows.zip
-          asset_name: kztv-windows.zip
-          asset_content_type: application/zip
