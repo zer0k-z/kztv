@@ -5,6 +5,8 @@ on:
     branches: master
   push:
     branches: master
+  workflow_dispatch:
+    
 
 jobs:
   build:
@@ -19,8 +21,11 @@ jobs:
 
       - name: Set environment variables
         run: |
-          # echo "SCRIPTS_PATH=addons/sourcemod/scripting" >> $GITHUB_ENV
+          SOURCEMOD_PATH=$GITHUB_WORKSPACE/addons/sourcemod
+          echo "SOURCEMOD_PATH=$SOURCEMOD_PATH" >> $GITHUB_ENV
           echo "SCRIPTS_PATH=addons/sourcemod/scripting" >> $GITHUB_ENV
+          echo "PLUGINS_PATH=$SOURCEMOD_PATH/plugins" >> $GITHUB_ENV
+
       - name: Setup SourcePawn Compiler ${{ matrix.SM_VERSION }}
         uses: rumblefrog/setup-sp@master
         with:
@@ -34,3 +39,68 @@ jobs:
             spcomp -w234 -O2 -v2 -i include $file
           done
         working-directory: ${{ env.SCRIPTS_PATH }}
+
+      - name: Move compiled plugins
+        run: |
+          rm -rf $PLUGINS_PATH
+          mkdir -p $PLUGINS_PATH
+          rsync -av --include='*/' --include="*.smx" --exclude="*" --prune-empty-dirs --remove-source-files $SCRIPTS_PATH/ $PLUGINS_PATH/
+
+      - name: Move folders to build
+        run: |
+          mkdir build
+          mv ./{addons,cfg} build/
+      
+      - name: Remove unnecessary files and folders from build
+        run: |
+          rm -rf addons/sourcemod/scripting
+          rm -rf addons/sourcemod/configs/{*.cfg,*.ini}
+        working-directory: ./build
+
+      - name: Rename build to build-linux and copy for build-windows
+        run: |
+          mv build build-linux
+          cp -r build-linux build-windows
+
+      - name: Delete unneeded extension files
+        run: |
+          rm -f build-linux/addons/sourcemod/extensions/sourcetvmanager.ext.2.csgo.dll
+          rm -f build-windows/addons/sourcemod/extensions/sourcetvmanager.ext.2.csgo.so
+      
+      - name: Compress package
+        run: |
+          zip -9rq kztv-linux.zip build-linux/*
+          zip -9rq kztv-windows.zip build-windows/*
+
+      - name: Set Commit Hash
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: workflow-build${{ github.run_number }}
+          release_name: Build ${{ steps.commit_info.outputs.sha_short  }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Linux Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./kztv-linux.zip
+          asset_name: kztv-linux.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./kztv-windows.zip
+          asset_name: kztv-windows.zip
+          asset_content_type: application/zip
