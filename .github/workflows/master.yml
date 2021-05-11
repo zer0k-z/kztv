@@ -69,10 +69,14 @@ jobs:
       
       - name: Compress package
         run: |
-          zip -9rq kztv-linux.zip build-linux/*
-          zip -9rq kztv-windows.zip build-windows/*
+          cd build-linux/*
+          zip -9rq ../kztv-linux.zip *
+          cd ..
+          cd build-windows/*
+          zip -9rq ../kztv-windows.zip *
       
       - name: Set Commit Hash
+        id: commit_info
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
         
       - name: Release
@@ -83,5 +87,7 @@ jobs:
           files: |
             kztv-linux.zip
             kztv-windows.zip
+          prerelease: true
+          body: Automatic build using GitHub Actions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
