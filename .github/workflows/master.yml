@@ -69,10 +69,10 @@ jobs:
       
       - name: Compress package
         run: |
-          cd build-linux/*
+          cd build-linux
           zip -9rq ../kztv-linux.zip *
           cd ..
-          cd build-windows/*
+          cd build-windows
           zip -9rq ../kztv-windows.zip *
       
       - name: Set Commit Hash
