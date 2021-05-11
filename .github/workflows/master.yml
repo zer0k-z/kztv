@@ -82,12 +82,12 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          body: "Automatic build using GitHub Actions"
           tag_name: workflow-build${{ github.run_number }}
           name: Build ${{ steps.commit_info.outputs.sha_short  }}
           files: |
             kztv-linux.zip
             kztv-windows.zip
           prerelease: true
-          body: 'Automatic build using GitHub Actions'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
