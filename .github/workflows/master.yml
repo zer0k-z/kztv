@@ -88,6 +88,7 @@ jobs:
             kztv-linux.zip
             kztv-windows.zip
           prerelease: true
-          body: Automatic build using GitHub Actions
+          body: 
+            description: Automatic build using GitHub Actions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
