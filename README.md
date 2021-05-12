@@ -24,7 +24,7 @@ There are downsides to GOTV demos compared to GOKZ replays. As demos save the st
 ## Requirements ##
 - Sourcemod and Metamod
 - GOKZ (and its dependencies)
-
+- SourceTVManager extension (already included)
 
 ## Installation ##
 1. Grab the latest release from the release page and unzip it in your sourcemod folder.
