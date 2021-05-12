@@ -13,7 +13,7 @@ public Plugin myinfo = {
 	name = "KZTV",
 	author = "zer0.k",
 	description = "GOTV integration for GOKZ",
-	version = "1.1.0"
+	version = "1.1.1"
 }
 
 #define KZTV_CFG "sourcemod/kztv/kztv.cfg"
