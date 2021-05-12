@@ -88,6 +88,6 @@ jobs:
           files: |
             kztv-linux.zip
             kztv-windows.zip
-          prerelease: true
+          draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
