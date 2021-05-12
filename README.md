@@ -43,6 +43,5 @@ There are downsides to GOTV demos compared to GOKZ replays. As demos save the st
 - There is no chat log in demos. This is caused by GOKZ not sending messages to chat. A [pull request](https://bitbucket.org/kztimerglobalteam/gokz/pull-requests/179) to GOKZ has been made to address the problem.
 
 ## Todo
-- Saving with post-run menu includes the starting tick of the run
 - Add a way to manage demos
 - FTP upload demos upon requests

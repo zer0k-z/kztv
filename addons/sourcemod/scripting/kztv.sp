@@ -6,11 +6,14 @@
 
 #include <autoexecconfig>
 
+#pragma semicolon 1
+#pragma newdecls required
+
 public Plugin myinfo = {
 	name = "KZTV",
 	author = "zer0.k",
-	description = "test",
-	version = "1.0.0"
+	description = "GOTV integration for GOKZ",
+	version = "1.1.0"
 }
 
 #define KZTV_CFG "sourcemod/kztv/kztv.cfg"
@@ -18,6 +21,7 @@ public Plugin myinfo = {
 bool gB_EnablePostRunMenu[MAXPLAYERS + 1];
 Handle gH_KZTVCookie;
 ConVar gCV_KZTVAutoRecord;
+int gI_StartTick[MAXPLAYERS + 1];
 enum ActionType
 {
 	RESET_SAVE = 0,
@@ -65,7 +69,7 @@ public void OnClientDisconnect_Post(int client)
 {
 	if ((GetPlayerCount() == 0) && SourceTV_IsRecording())
 	{
-		StopDemo(false);
+		StopDemo(client, false);
 	}
 }
 
@@ -74,6 +78,11 @@ public void OnClientCookiesCached(int client)
 	char buffer[2];
 	GetClientCookie(client, gH_KZTVCookie, buffer, sizeof(buffer));
 	gB_EnablePostRunMenu[client] = !!buffer[0]; // "a hack to convert the char to boolean"
+}
+
+public void GOKZ_OnTimerStart_Post(int client, int course)
+{
+	gI_StartTick[client] = SourceTV_GetRecordingTick();
 }
 
 public void GOKZ_LR_OnTimeProcessed(
@@ -104,13 +113,10 @@ public void GOKZ_LR_OnTimeProcessed(
 // Menu
 // ===================
 
-public void Menu_KZTV_Confirm(int client, ActionType type)
+void Menu_KZTV_Confirm(int client, ActionType type, bool addTime = false)
 {
 	Menu menu = new Menu(Menu_KZTV_ConfirmHandler);
-	// 0 for Reset without saving
-	// 1 for Start
-	// 2 for Saving, 3 for stop without saving
-	// 4 for reset with saving
+
 	switch (type)
 	{
 		case RESET:
@@ -125,25 +131,39 @@ public void Menu_KZTV_Confirm(int client, ActionType type)
 		}
 		case STOP_SAVE:
 		{
-			menu.SetTitle("Warning: This will stop recording for the entire server!")
-			menu.AddItem("StopDemo_Save", "Yes");
+			menu.SetTitle("Warning: This will stop recording for the entire server!");
+			if (addTime)
+			{
+				menu.AddItem("StopDemo_Save_AddTime", "Yes");
+			}
+			else
+			{
+				menu.AddItem("StopDemo_Save", "Yes");
+			}
 		}
 		case STOP:
 		{
-			menu.SetTitle("Warning: This will stop recording for the entire server without saving!")
+			menu.SetTitle("Warning: This will stop recording for the entire server without saving!");
 			menu.AddItem("StopDemo", "Yes");
 		}
 		case RESET_SAVE:
 		{
-			menu.SetTitle("Warning: Resetting demo record will stop everyone's timer!")
-			menu.AddItem("ResetDemo_Save", "Yes");
+			menu.SetTitle("Warning: Resetting demo record will stop everyone's timer!");
+			if (addTime)
+			{
+				menu.AddItem("ResetDemo_Save_AddTime", "Yes");
+			}
+			else
+			{
+				menu.AddItem("ResetDemo_Save", "Yes");
+			}
 		}
 	}
 	menu.AddItem("No", "No");
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int Menu_KZTV_ConfirmHandler(Menu menu, MenuAction action, int param1, int param2)
+int Menu_KZTV_ConfirmHandler(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -155,19 +175,27 @@ public int Menu_KZTV_ConfirmHandler(Menu menu, MenuAction action, int param1, in
 		}
 		else if (StrEqual(info, "ResetDemo"))
 		{
-			ResetDemo(false);
+			ResetDemo(param1, false);
 		}
 		else if (StrEqual(info, "StopDemo_Save"))
 		{
-			StopDemo(true);
+			StopDemo(param1, true);
 		}
 		else if (StrEqual(info, "StopDemo"))
 		{
-			StopDemo(false);
+			StopDemo(param1, false);
 		}
 		else if (StrEqual(info, "ResetDemo_Save"))
 		{
-			ResetDemo(true);
+			ResetDemo(param1, true);
+		}
+		else if (StrEqual(info, "StopDemo_Save_AddTime"))
+		{
+			StopDemo(param1, true, true);
+		}
+		else if (StrEqual(info, "ResetDemo_Save_AddTime"))
+		{
+			ResetDemo(param1, true, true);
 		}
 	}
 	else if (action == MenuAction_End)
@@ -176,7 +204,7 @@ public int Menu_KZTV_ConfirmHandler(Menu menu, MenuAction action, int param1, in
 	}
 }
 
-public void Menu_KZTV(int client)
+void Menu_KZTV(int client)
 {
 	Menu menu = new Menu(Menu_KZTVHandler);
 	menu.SetTitle("KZTV Menu");
@@ -200,7 +228,7 @@ public void Menu_KZTV(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int Menu_KZTVHandler(Menu menu, MenuAction action, int param1, int param2)
+int Menu_KZTVHandler(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -233,7 +261,7 @@ public int Menu_KZTVHandler(Menu menu, MenuAction action, int param1, int param2
 	}
 }
 
-public void Menu_KZTV_PostRun(int client)
+void Menu_KZTV_PostRun(int client)
 {
 	Menu menu = new Menu(Menu_KZTV_PostRunHandler);
 	menu.SetTitle("KZTV Finish Menu");
@@ -247,7 +275,7 @@ public void Menu_KZTV_PostRun(int client)
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
-public int Menu_KZTV_PostRunHandler(Menu menu, MenuAction action, int param1, int param2)
+int Menu_KZTV_PostRunHandler(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
 	{
@@ -255,11 +283,11 @@ public int Menu_KZTV_PostRunHandler(Menu menu, MenuAction action, int param1, in
 		menu.GetItem(param2, info, sizeof(info));
 		if (StrEqual(info, "Save Demo"))
 		{
-			Menu_KZTV_Confirm(param1, STOP_SAVE);
+			Menu_KZTV_Confirm(param1, STOP_SAVE, true);
 		}
 		else if (StrEqual(info, "Save & Start Demo"))
 		{
-			Menu_KZTV_Confirm(param1, RESET_SAVE);
+			Menu_KZTV_Confirm(param1, RESET_SAVE, true);
 		}
 		else if (StrEqual(info, "Reset Demo"))
 		{
@@ -358,26 +386,38 @@ void StartDemo()
 	}
 }
 
-void StopDemo(bool save)
+void StopDemo(int client, bool save, bool addTime = false)
 {
 	char fileName[64];
 	SourceTV_GetDemoFileName(fileName, sizeof(fileName));
 	if (!save)
 	{
-		PrintToChatAll("[KZTV] Stopping demo record...")
+		PrintToChatAll("[KZTV] Stopping demo record...");
 		SourceTV_StopRecording();
 		DeleteFile(fileName);
 	}
 	else
 	{
-		PrintToChatAll("[KZTV] Demo saved as %s.", fileName);
 		SourceTV_StopRecording();
+		if (addTime)
+		{
+			char buffer[2][64];
+			char demoPath[PLATFORM_MAX_PATH];
+			ExplodeString(fileName,".dem", buffer, 2, 64);
+			Format(demoPath, sizeof(demoPath), "%s_%i.dem", buffer[0], gI_StartTick[client]);
+			RenameFile(demoPath, fileName);
+			PrintToChatAll("[KZTV] Demo saved as %s.", demoPath);
+		}
+		else
+		{
+			PrintToChatAll("[KZTV] Demo saved as %s.", fileName);
+		}
 	}
 }
 
-void ResetDemo(bool save)
+void ResetDemo(int client, bool save, bool addTime = false)
 {
-	StopDemo(save);
+	StopDemo(client, save, addTime);
 	StartDemo();
 }
 
