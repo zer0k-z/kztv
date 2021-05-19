@@ -13,11 +13,11 @@ public Plugin myinfo = {
 	name = "KZTV",
 	author = "zer0.k",
 	description = "GOTV integration for GOKZ",
-	version = "1.1.1"
+	version = "1.1.2"
 }
 
 #define KZTV_CFG "sourcemod/kztv/kztv.cfg"
-#define PREFIX "[KZTV] "
+#define PREFIX " \x0CKZTV \x01| "
 bool gB_EnablePostRunMenu[MAXPLAYERS + 1];
 Handle gH_KZTVCookie;
 ConVar gCV_KZTVAutoRecord;
@@ -48,6 +48,7 @@ public void OnPluginStart()
 
 	RegConsoleCmd("sm_kztv", Command_Menu_KZTV);
 	RegConsoleCmd("sm_kztv_togglepostrunmenu", Command_KZTV_TogglePostRunMenu);
+	RegConsoleCmd("sm_kztvpostrun", Command_KZTV_TogglePostRunMenu);
 	CheckDemoDirectory();
 	ExecGOTVConfig();
 	CreateConVars();
@@ -85,23 +86,7 @@ public void GOKZ_OnTimerStart_Post(int client, int course)
 	gI_StartTick[client] = SourceTV_GetRecordingTick();
 }
 
-public void GOKZ_LR_OnTimeProcessed(
-	int client,
-	int steamID,
-	int mapID,
-	int course,
-	int mode,
-	int style,
-	float runTime,
-	int teleportsUsed,
-	bool firstTime,
-	float pbDiff,
-	int rank,
-	int maxRank,
-	bool firstTimePro,
-	float pbDiffPro,
-	int rankPro,
-	int maxRankPro)
+public void GOKZ_OnTimerEnd_Post(int client, int course, float time, int teleportsUsed)
 {
 	if (gB_EnablePostRunMenu[client])
 	{
@@ -377,7 +362,7 @@ void StartDemo()
 {
 	if (SourceTV_IsActive() && !SourceTV_IsRecording())
 	{
-		PrintToChatAll("[KZTV] Recording Demo...");
+		PrintToChatAll("%sRecording Demo...", PREFIX);
 		// Making sure that the replay does not get corrupted and the server does not crash
 		FindConVar("mp_restartgame").IntValue = 1;
 		CreateTimer(1.1, Timer_StartWarmup);
@@ -392,7 +377,7 @@ void StopDemo(int client, bool save, bool addTime = false)
 	SourceTV_GetDemoFileName(fileName, sizeof(fileName));
 	if (!save)
 	{
-		PrintToChatAll("[KZTV] Stopping demo record...");
+		PrintToChatAll("%sStopping demo record...", PREFIX);
 		SourceTV_StopRecording();
 		DeleteFile(fileName);
 	}
@@ -406,11 +391,11 @@ void StopDemo(int client, bool save, bool addTime = false)
 			ExplodeString(fileName,".dem", buffer, 2, 64);
 			Format(demoPath, sizeof(demoPath), "%s_%i.dem", buffer[0], gI_StartTick[client]);
 			RenameFile(demoPath, fileName);
-			PrintToChatAll("[KZTV] Demo saved as %s.", demoPath);
+			PrintToChatAll("%sDemo saved as %s.", PREFIX, demoPath);
 		}
 		else
 		{
-			PrintToChatAll("[KZTV] Demo saved as %s.", fileName);
+			PrintToChatAll("%sDemo saved as %s.", PREFIX, fileName);
 		}
 	}
 }
