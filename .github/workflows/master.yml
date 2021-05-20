@@ -46,6 +46,16 @@ jobs:
           mkdir -p $PLUGINS_PATH
           rsync -av --include='*/' --include="*.smx" --exclude="*" --prune-empty-dirs --remove-source-files $SCRIPTS_PATH/ $PLUGINS_PATH/
 
+      - name: Download extensions
+        run: |
+          wget https://nightly.link/peace-maker/sourcetvmanager/workflows/main/master
+          grep -ho 'https://nightly\.link/peace-maker/sourcetvmanager/workflows/main/master/sourcetvmanager-sm1\.10-linux-[^"]*\.zip' master | head -n1 | xargs -I{} wget {}
+          grep -ho 'https://nightly\.link/peace-maker/sourcetvmanager/workflows/main/master/sourcetvmanager-sm1\.10-win-[^"]*\.zip' master | head -n1 | xargs -I{} wget {}
+          for file in *.zip
+          do
+            unzip -o $file
+          done
+
       - name: Move folders to build
         run: |
           mkdir build
@@ -62,10 +72,15 @@ jobs:
           mv build build-linux
           cp -r build-linux build-windows
 
-      - name: Delete unneeded extension files
+      - name: Delete unneeded extension files (Windows)
         run: |
-          rm -f build-linux/addons/sourcemod/extensions/sourcetvmanager.ext.2.csgo.dll
-          rm -f build-windows/addons/sourcemod/extensions/sourcetvmanager.ext.2.csgo.so
+          ls | grep -v sourcetvmanager.ext.2.csgo.dll | xargs rm
+          working-directory: ./build-windows/addons/sourcemod/extensions
+
+      - name: Delete unneeded extension files (Linux)
+        run: |
+          ls | grep -v sourcetvmanager.ext.2.csgo.so | xargs rm
+          working-directory: ./build-linux/addons/sourcemod/extensions
       
       - name: Compress package
         run: |
