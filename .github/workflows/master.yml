@@ -74,14 +74,13 @@ jobs:
 
       - name: Delete unneeded extension files (Windows)
         run: |
-          ls
           ls | grep -v sourcetvmanager.ext.2.csgo.dll | xargs rm
-          working-directory: ./build-windows/addons/sourcemod/extensions
+        working-directory: ./build-windows/addons/sourcemod/extensions
 
       - name: Delete unneeded extension files (Linux)
         run: |
           ls | grep -v sourcetvmanager.ext.2.csgo.so | xargs rm
-          working-directory: ./build-linux/addons/sourcemod/extensions
+        working-directory: ./build-linux/addons/sourcemod/extensions
       
       - name: Compress package
         run: |
