@@ -74,7 +74,7 @@ jobs:
 
       - name: Delete unneeded extension files (Windows)
         run: |
-          echo ls
+          ls
           ls | grep -v sourcetvmanager.ext.2.csgo.dll | xargs rm
           working-directory: ./build-windows/addons/sourcemod/extensions
 
