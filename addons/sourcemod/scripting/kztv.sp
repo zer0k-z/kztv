@@ -13,7 +13,7 @@ public Plugin myinfo = {
 	name = "KZTV",
 	author = "zer0.k",
 	description = "GOTV integration for GOKZ",
-	version = "1.1.2"
+	version = "1.1.3"
 }
 
 #define KZTV_CFG "sourcemod/kztv/kztv.cfg"
@@ -40,7 +40,7 @@ public void OnPluginStart()
 
 	for (int client = 1; client <= MaxClients; client++)
 	{
-		if (IsClientInGame(client) && AreClientCookiesCached(client))
+		if (IsClientInGame(client) && !IsFakeClient(client) && AreClientCookiesCached(client))
 		{
         	OnClientCookiesCached(client);
 		}
@@ -78,7 +78,7 @@ public void OnClientCookiesCached(int client)
 {
 	char buffer[2];
 	GetClientCookie(client, gH_KZTVCookie, buffer, sizeof(buffer));
-	gB_EnablePostRunMenu[client] = !!buffer[0]; // "a hack to convert the char to boolean"
+	gB_EnablePostRunMenu[client] = !!StringToInt(buffer[0]); // "a hack to convert the char to boolean"
 }
 
 public void GOKZ_OnTimerStart_Post(int client, int course)
