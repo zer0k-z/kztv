@@ -38,7 +38,7 @@ There are downsides to GOTV demos compared to GOKZ replays. As demos save the st
 
 ## Commands ##
 - ``!kztv`` - Display KZTV menu
-- ``!kztv_togglepostrunmenu`` / ``sm_kztvpostrun`` - Toggle GOKZ post-run menu.
+- ``!kztv_togglepostrunmenu`` / ``!kztvpostrun`` - Toggle GOKZ post-run menu.
 
 ## Issues/Bugs ##
 - There is no chat log in demos. This is caused by GOKZ not sending messages to chat. A [pull request](https://bitbucket.org/kztimerglobalteam/gokz/pull-requests/179) to GOKZ has been made to address the problem.
