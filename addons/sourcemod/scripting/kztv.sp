@@ -3,7 +3,6 @@
 #include "sourcetvmanager"
 #include <clientprefs>
 #include <gokz/core>
-
 #include <autoexecconfig>
 
 #pragma semicolon 1
@@ -13,15 +12,17 @@ public Plugin myinfo = {
 	name = "KZTV",
 	author = "zer0.k",
 	description = "GOTV integration for GOKZ",
-	version = "1.1.3"
+	version = "2.0.0"
 }
 
 #define KZTV_CFG "sourcemod/kztv/kztv.cfg"
 #define PREFIX " \x0CKZTV \x01| "
+
 bool gB_EnablePostRunMenu[MAXPLAYERS + 1];
 Handle gH_KZTVCookie;
 ConVar gCV_KZTVAutoRecord;
 int gI_StartTick[MAXPLAYERS + 1];
+
 enum ActionType
 {
 	RESET_SAVE = 0,
@@ -30,6 +31,7 @@ enum ActionType
 	STOP,
 	START,
 }
+
 // ===================
 // Plugin Events
 // ===================
@@ -106,12 +108,12 @@ void Menu_KZTV_Confirm(int client, ActionType type, bool addTime = false)
 	{
 		case RESET:
 		{
-			menu.SetTitle("Warning: Resetting demo record will stop everyone's timer!");
+			menu.SetTitle("Warning: This will stop recording for the entire server without saving!");
 			menu.AddItem("ResetDemo", "Yes");
 		}
 		case START:
 		{
-			menu.SetTitle("Warning: Starting demo record will stop everyone's timer!");
+			menu.SetTitle("Warning: Start demo recording?");
 			menu.AddItem("StartDemo", "Yes");
 		}
 		case STOP_SAVE:
@@ -133,7 +135,7 @@ void Menu_KZTV_Confirm(int client, ActionType type, bool addTime = false)
 		}
 		case RESET_SAVE:
 		{
-			menu.SetTitle("Warning: Resetting demo record will stop everyone's timer!");
+			menu.SetTitle("Warning: This will stop recording for the entire server!");
 			if (addTime)
 			{
 				menu.AddItem("ResetDemo_Save_AddTime", "Yes");
@@ -284,6 +286,7 @@ int Menu_KZTV_PostRunHandler(Menu menu, MenuAction action, int param1, int param
 		delete menu;
 	}
 }
+
 // ===================
 // Commands
 // ===================
@@ -315,27 +318,6 @@ public Action Command_Menu_KZTV(int client, int args)
 }
 
 // ===================
-// Timers
-// ===================
-
-
-static Action Timer_StartWarmup(Handle timer)
-{
-	ServerCommand("mp_warmup_start");
-}
-
-static Action Timer_StartRecording(Handle timer)
-{
-	RecordDemo();
-}
-
-static Action Timer_StopWarmup(Handle timer)
-{
-	ServerCommand("mp_warmup_end");
-	return Plugin_Handled;
-}
-
-// ===================
 // Demo functions
 // ===================
 
@@ -356,6 +338,7 @@ void RecordDemo()
 	StrCat(demoName, sizeof(demoName), timestamp);
 	Format(demoPath, sizeof(demoPath), "demos/%s", demoName);
 	SourceTV_StartRecording(demoPath);
+	FixRecord();
 }
 
 void StartDemo()
@@ -363,11 +346,7 @@ void StartDemo()
 	if (SourceTV_IsActive() && !SourceTV_IsRecording())
 	{
 		PrintToChatAll("%sRecording Demo...", PREFIX);
-		// Making sure that the replay does not get corrupted and the server does not crash
-		FindConVar("mp_restartgame").IntValue = 1;
-		CreateTimer(1.1, Timer_StartWarmup);
-		CreateTimer(1.2, Timer_StartRecording);
-		CreateTimer(1.3, Timer_StopWarmup);
+		RecordDemo();
 	}
 }
 
@@ -454,4 +433,17 @@ void CreateConVars()
 
 	AutoExecConfig_ExecuteFile();
 	AutoExecConfig_CleanFile();
+}
+
+void FixRecord()
+{
+    // For some reasons, demo playback speed is absolute trash without a round_start event.
+    // So whenever the server starts recording a demo, we create the event and fire it.
+    Event e = CreateEvent("round_start", true);
+    int timelimit = FindConVar("mp_timelimit").IntValue;
+    e.SetInt("timelimit", timelimit);
+    e.SetInt("fraglimit", 0);
+    e.SetString("objective", "demofix");
+
+    e.Fire(false);
 }
