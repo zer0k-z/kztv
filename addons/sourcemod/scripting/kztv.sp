@@ -12,7 +12,7 @@ public Plugin myinfo = {
 	name = "KZTV",
 	author = "zer0.k",
 	description = "GOTV integration for GOKZ",
-	version = "2.0.0"
+	version = "2.0.1"
 }
 
 #define KZTV_CFG "sourcemod/kztv/kztv.cfg"
@@ -85,7 +85,10 @@ public void OnClientCookiesCached(int client)
 
 public void GOKZ_OnTimerStart_Post(int client, int course)
 {
-	gI_StartTick[client] = SourceTV_GetRecordingTick();
+	if (SourceTV_IsRecording())
+	{
+		gI_StartTick[client] = SourceTV_GetRecordingTick();
+	}
 }
 
 public void GOKZ_OnTimerEnd_Post(int client, int course, float time, int teleportsUsed)
