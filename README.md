@@ -42,6 +42,7 @@ There are downsides to GOTV demos compared to GOKZ replays. As demos save the st
 
 ## Issues/Bugs ##
 - There is no chat log in demos. This is caused by GOKZ not sending messages to chat. A [pull request](https://bitbucket.org/kztimerglobalteam/gokz/pull-requests/179) to GOKZ has been made to address the problem.
+- Server crashes after waking up from hibernate. This is an issue of the game itself, currently there's no known fix for this.
 
 ## Todo
 - Add a way to manage demos
