@@ -6,7 +6,9 @@
 
 GOTV demo integration for GOKZ.
 
-***Warning!*** Everyone has access to these commands. 
+***Warning!*** 
+1. Everyone has access to these commands. 
+2. Starting a demo record will stop **ALL** running timers! This should change after GOKZ v2.11.4.
 
 Therefore it is not recommended to run the plugin in public servers. Enabling the GOTV recordings is ideal for small, private and tournament servers.
 
