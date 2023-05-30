@@ -1,4 +1,4 @@
-# KZTV (WIP)
+# KZTV
 
 ![Downloads](https://img.shields.io/github/downloads/zer0k-z/kztv/total?style=flat-square) ![Last commit](https://img.shields.io/github/last-commit/zer0k-z/kztv?style=flat-square) ![Open issues](https://img.shields.io/github/issues/zer0k-z/kztv?style=flat-square) ![Closed issues](https://img.shields.io/github/issues-closed/zer0k-z/kztv?style=flat-square) ![Size](https://img.shields.io/github/repo-size/zer0k-z/kztv?style=flat-square) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/zer0k-z/kztv/Compile%20with%20SourceMod?style=flat-square)
 
@@ -6,7 +6,9 @@
 
 GOTV demo integration for GOKZ.
 
-***Warning!*** Everyone has access to these commands. 
+***Warning!*** 
+1. Everyone has access to these commands. 
+2. Starting a demo record will stop **ALL** running timers! This should change after GOKZ v2.11.4.
 
 Therefore it is not recommended to run the plugin in public servers. Enabling the GOTV recordings is ideal for small, private and tournament servers.
 
@@ -42,6 +44,7 @@ There are downsides to GOTV demos compared to GOKZ replays. As demos save the st
 
 ## Issues/Bugs ##
 - There is no chat log in demos. This is caused by GOKZ not sending messages to chat. A [pull request](https://bitbucket.org/kztimerglobalteam/gokz/pull-requests/179) to GOKZ has been made to address the problem.
+- Server crashes after waking up from hibernate. This is an issue of the game itself, currently there's no known fix for this.
 
 ## Todo
 - Add a way to manage demos
